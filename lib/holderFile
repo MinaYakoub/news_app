@@ -1,0 +1,49 @@
+import 'package:dio/dio.dart';
+import 'package:flutter/material.dart';
+import 'package:news_app/components/news_card.dart';
+import 'package:news_app/models/article_model.dart';
+import 'package:news_app/models/news_model.dart';
+import 'package:news_app/services/news_service.dart';
+
+class NewsList extends StatefulWidget {
+  const NewsList({super.key});
+
+  @override
+  State<NewsList> createState() => _NewsListState();
+}
+
+class _NewsListState extends State<NewsList> {
+  bool isLoading = true;
+  List<ArticleModel> articles = [];
+  @override
+  void initState() {
+    Dio dio = Dio();
+    // TODO: implement initState
+    super.initState();
+    getGeneralNews(dio);
+  }
+
+  Future<void> getGeneralNews(Dio dio) async {
+    articles = await NewsService(dio: dio).getNews();
+    isLoading = false;
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return isLoading
+        ? SliverToBoxAdapter(
+            child: Center(child: CircularProgressIndicator()),
+          )
+        : SliverList(
+            delegate: SliverChildBuilderDelegate(
+              childCount: articles.length,
+              (context, index) {
+                return NewsCard(
+                  articleModel: articles[index],
+                );
+              },
+            ),
+          );
+  }
+}
